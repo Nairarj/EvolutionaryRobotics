@@ -43,6 +43,10 @@ def Generate_Brain():
   # ---------------- New Motor Neurons -----------------
   pyrosim.Send_Motor_Neuron(name=3, jointName="Torso_BackLeg")   # Motor neuron for Torso_BackLeg
   pyrosim.Send_Motor_Neuron(name=4, jointName="Torso_FrontLeg")  # Motor neuron for Torso_FrontLeg
+  
+  #Synapse connectiong sensor neuron 1 to motor neuron 3 (BackLeg -> Torso_BackLeg)
+  pyrosim.Send_Synapse(sourceNeuronName=1, targetNeuronName=3, weight=1.0)
+
   pyrosim.End()
 
   
