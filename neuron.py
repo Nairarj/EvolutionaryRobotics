@@ -81,12 +81,15 @@ class NEURON:
           #Allowing presynaptic neuron to influence this neuron.
           self.Allow_Presynaptic_Neuron_To_Influence_Me(synapses[key].Get_Weight(), neurons[key[0]].Get_Value())
       print("After updating", self.Get_Name(), "value:", self.Get_Value())
-    
+
+      #Threshold the neuron's value to the range [-1,1]
+      self.Threshold()
 
     def Allow_Presynaptic_Neuron_To_Influence_Me(self, weight, presynaptic_value):
       
       print("Influence: weight =", weight, "presynaptic_value =", presynaptic_value)
       self.Add_To_Value(weight * presynaptic_value)
+    
 # -------------------------- Private methods -------------------------
 
     def Determine_Name(self,line):
