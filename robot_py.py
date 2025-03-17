@@ -85,3 +85,17 @@ class ROBOT:
     self.nn.Update()
     # Call the neural network's Print method.
     self.nn.Print()
+  
+
+  def Get_Fitness(self):
+    stateOfLinkZero = p.getLinkState(self.robotId, 0)
+
+    positionOfLinkZero = stateOfLinkZero[0]
+
+    xCoordinateOfLinkZero = positionOfLinkZero[0]
+
+    with open("fitness.txt", "w") as f:
+      f.write(str(xCoordinateOfLinkZero))
+
+    print("Fitness (x-coordinate of link 0):", xCoordinateOfLinkZero)
+    return xCoordinateOfLinkZero

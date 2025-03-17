@@ -7,11 +7,15 @@ import imageio_ffmpeg
 import pyrosim.pyrosim as pyrosim
 import time
 import constants_py as c
+import os
 from base64 import b64encode
 from IPython.display import HTML
 from tempfile import TemporaryFile
 from world_py import WORLD
 from robot_py import ROBOT
+
+#Get 
+
 
 #simulation.py
 class SIMULATION:
@@ -39,7 +43,8 @@ class SIMULATION:
 
 
     # Initialize video.
-    vid = imageio_ffmpeg.write_frames('vid.mp4', (cam_width, cam_height), fps=30)
+
+    vid = imageio_ffmpeg.write_frames("vid.mp4", (cam_width, cam_height), fps=30)
     vid.send(None) # The first frame of the video must be a null frame.
 
     for t in range(c.iterations):
@@ -69,6 +74,11 @@ class SIMULATION:
       time.sleep(1/300)
 
     vid.close()
+
+    self.Get_Fitness()
+
+  def Get_Fitness(self):
+    return self.robot.Get_Fitness()
 
 def __del__(self):
     try:
