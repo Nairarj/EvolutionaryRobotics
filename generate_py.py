@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1nmu40nIM7RDLIBDz7TcEAmjSOQ6TJmgz
 """
 
+from numpy import random
 import pyrosim.pyrosim as pyrosim
 
 #generate.py
@@ -37,22 +38,25 @@ def Create_Robot():
 
 def Generate_Brain():
   pyrosim.Start_NeuralNetwork("brain.nndf")
-  #Sensor Neurons
-  pyrosim.Send_Sensor_Neuron(name=0, linkName="Torso")
-  pyrosim.Send_Sensor_Neuron(name=1, linkName="BackLeg")
-  pyrosim.Send_Sensor_Neuron(name=2, linkName="FrontLeg")
-  #Motor Neurons
-  pyrosim.Send_Motor_Neuron(name=3, jointName="Torso_BackLeg")
-  pyrosim.Send_Motor_Neuron(name=4, jointName="Torso_FrontLeg")
+  # Define sensor neuron names and their corresponding link names
+  sensor_neurons = {0: "Torso", 1: "BackLeg", 2: "FrontLeg"}
+  for s in sensor_neurons:
+      pyrosim.Send_Sensor_Neuron(name=s, linkName=sensor_neurons[s])
     
-  # Motor Neuron 3 (Back Leg):
-  pyrosim.Send_Synapse(sourceNeuronName=0, targetNeuronName=3, weight=-0.3)
-  pyrosim.Send_Synapse(sourceNeuronName=1, targetNeuronName=3, weight=0.5)
-  pyrosim.Send_Synapse(sourceNeuronName=2, targetNeuronName=3, weight=-1.0)
+  # --- Create Motor Neurons ---
+  # Define motor neuron names and their corresponding joint names
+  motor_neurons = {3: "Torso_BackLeg", 4: "Torso_FrontLeg"}
+  for m in motor_neurons:
+      pyrosim.Send_Motor_Neuron(name=m, jointName=motor_neurons[m])
     
-  # Motor Neuron 4 (Front Leg):
-  pyrosim.Send_Synapse(sourceNeuronName=0, targetNeuronName=4, weight=-0.6)
-  pyrosim.Send_Synapse(sourceNeuronName=2, targetNeuronName=4, weight=-0.25)  
+  # --- Create Fully Connected Synapses ---
+  # For each sensor neuron and each motor neuron, create a synapse with a random weight in [-1,1]
+  for s in sensor_neurons:
+      for m in motor_neurons:
+          # Generate a random weight in the range [-1, 1]
+          weight = random.uniform(-1, 1)
+          pyrosim.Send_Synapse(sourceNeuronName=s, targetNeuronName=m, weight=weight)
+    
   pyrosim.End()
   
 
