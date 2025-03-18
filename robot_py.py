@@ -64,9 +64,6 @@ class ROBOT:
             desiredAngle = self.nn.Get_Value_Of(neuronName)
             
             # Debug print statement.
-            print("Motor Neuron:", neuronName,
-                  "Joint:", jointName,
-                  "Desired Angle:", desiredAngle)
             # Set the motor for the joint using the desired angle.
             pyrosim.Set_Motor_For_Joint(
                 bodyIndex=self.robotId,
@@ -84,7 +81,7 @@ class ROBOT:
     #Update Sensor neuron values
     self.nn.Update()
     # Call the neural network's Print method.
-    self.nn.Print()
+    #self.nn.Print()
   
 
   def Get_Fitness(self):

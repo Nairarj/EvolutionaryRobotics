@@ -15,6 +15,7 @@ from world_py import WORLD
 from robot_py import ROBOT
 
 #Get 
+video_filename = os.environ.get("VIDEO_FILENAME", "vid.mp4")
 
 
 #simulation.py
@@ -44,7 +45,7 @@ class SIMULATION:
 
     # Initialize video.
 
-    vid = imageio_ffmpeg.write_frames("vid.mp4", (cam_width, cam_height), fps=30)
+    vid = imageio_ffmpeg.write_frames(video_filename, (cam_width, cam_height), fps=30)
     vid.send(None) # The first frame of the video must be a null frame.
 
     for t in range(c.iterations):
@@ -71,7 +72,7 @@ class SIMULATION:
       #Adding call to Think()
       self.robot.Think()
       self.robot.Act(t)
-      time.sleep(1/300)
+      #time.sleep(1/300)
 
     vid.close()
 
@@ -85,3 +86,7 @@ def __del__(self):
         p.disconnect()
     except Exception:
         pass
+
+if __name__ == "__main__":
+    sim = SIMULATION()
+    sim.Run()

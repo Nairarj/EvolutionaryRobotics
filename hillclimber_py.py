@@ -9,17 +9,17 @@ class HILL_CLIMBER:
 
   
   def Evolve(self):
-    self.parent.Evaluate()
+    self.parent.Evaluate("initial_vid.mp4")
 
-    for generation in range(numberOfGenerations):
-      self.Evolve_For_One_Generation()
+    for currentGeneration in range(numberOfGenerations):
+      self.Evolve_For_One_Generation(currentGeneration)
     
     self.Show_Best()
   
-  def Evolve_For_One_Generation(self):
+  def Evolve_For_One_Generation(self, generation):
     self.Spawn()
     self.Mutate()
-    self.child.Evaluate()
+    self.child.Evaluate("child_vid.mp4")
 
     self.PrintFitness(generation)
 
@@ -27,8 +27,9 @@ class HILL_CLIMBER:
 
   
   def PrintFitness(self, generation):
-    print(f"Generation {generation}: Parent fitness: {self.parent.fitness}, Child fitness: {self.child.fitness}")
-
+    print(f"Generation {generation}: "
+          f"Parent fitness: {self.parent.fitness}, "
+          f"Child fitness: {self.child.fitness}")
   
   def Spawn(self):
     self.child = copy.deepcopy(self.parent)
@@ -42,4 +43,4 @@ class HILL_CLIMBER:
 
   
   def Show_Best(self):
-    self.parent.Evaluate()
+    self.parent.Evaluate("final_vid.mp4")

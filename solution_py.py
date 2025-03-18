@@ -11,12 +11,13 @@ class SOLUTION:
     self.weights = self.weights * 2 - 1
 
 
-  def Evaluate(self):
+  def Evaluate(self, video_filename="vid.mp4"):
     #Generate the robot world, body, and brain using solution weights
     self.Create_World()
     self.Create_Body()
     self.Create_Brain()
     #Run the simulation
+    os.environ["VIDEO_FILENAME"] = video_filename
     os.system("python simulate_py.py")
     #Read the fitness file
     fitnessFile = open("fitness.txt", "r")
