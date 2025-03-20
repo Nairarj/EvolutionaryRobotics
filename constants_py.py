@@ -11,3 +11,4 @@ frontAmplitude = np.pi / 4
 frontFrequency = 5
 frontPhaseOffset = np.pi/2
 numberOfGenerations = 10
+populationSize = 2

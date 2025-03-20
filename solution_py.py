@@ -2,35 +2,56 @@ import numpy as np
 import os
 import pyrosim.pyrosim as pyrosim
 import random
+import time
 
 class SOLUTION:
-  def __init__(self):
+  def __init__(self, index=0):
     self.weights = np.random.rand(3, 2)
 
 
     self.weights = self.weights * 2 - 1
 
+    self.index = index 
+    self.fitness = 0.0
+
 
   def Evaluate(self, video_filename="vid.mp4"):
+    # Create unique filenames for URDF, SDF, NNDF, and fitness
+    self.world_file  = f"world_{self.index}.sdf"
+    self.body_file   = f"body_{self.index}.urdf"
+    self.brain_file  = f"brain_{self.index}.nndf"
+    self.fitness_file= f"fitness_{self.index}.txt"
     #Generate the robot world, body, and brain using solution weights
     self.Create_World()
     self.Create_Body()
     self.Create_Brain()
-    #Run the simulation
+    # Set environment variables so simulate.py knows which files to load.
+    os.environ["WORLD_FILE"]   = self.world_file
+    os.environ["BODY_FILE"]    = self.body_file
+    os.environ["BRAIN_FILE"]   = self.brain_file
+    os.environ["FITNESS_FILE"] = self.fitness_file
+
     os.environ["VIDEO_FILENAME"] = video_filename
-    os.system("python simulate_py.py")
-    #Read the fitness file
-    fitnessFile = open("fitness.txt", "r")
-    fitness_str = fitnessFile.read().strip()
-    fitnessFile.close()
-    #Convert the string to a float
-    self.fitness = float(fitness_str)
+    os.system("python simulate.py &")
+
+    def Wait_For_Fitness(self):
+      # Wait until the fitness file is created.
+      while not os.path.exists(self.fitness_file):
+          time.sleep(0.01)
+
+      # Now read it.
+      with open(self.fitness_file, "r") as f:
+          fitness_str = f.read().strip()
+      self.fitness = float(fitness_str)
   
 
 
   def Create_World(self):
     pyrosim.Start_SDF("object.sdf")
     pyrosim.End()
+    # Optional: wait until file is physically written out
+    while not os.path.exists(self.world_file):
+        time.sleep(0.01)
 
   def Create_Body(self):
     #Fixed dimensions
@@ -44,6 +65,10 @@ class SOLUTION:
     pyrosim.Send_Joint(name="Torso_FrontLeg", parent="Torso", child="FrontLeg", type="revolute", position=[2.0, 0, 1.0])
     pyrosim.Send_Cube(name="FrontLeg", pos=[0.5, 0, -0.5], size=[width, length, height])
     pyrosim.End()
+
+    # Optional wait
+    while not os.path.exists(self.body_file):
+        time.sleep(0.01)
 
   def Create_Brain(self):
     pyrosim.Start_NeuralNetwork("brain.nndf")

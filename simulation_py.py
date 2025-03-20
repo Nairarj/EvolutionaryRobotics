@@ -14,9 +14,12 @@ from tempfile import TemporaryFile
 from world_py import WORLD
 from robot_py import ROBOT
 
-#Get 
-video_filename = os.environ.get("VIDEO_FILENAME", "vid.mp4")
-
+# 1) Read environment variables for all file names
+WORLD_FILE   = os.environ.get("WORLD_FILE",   "object.sdf")
+BODY_FILE    = os.environ.get("BODY_FILE",    "body.urdf")
+BRAIN_FILE   = os.environ.get("BRAIN_FILE",   "brain.nndf")
+FITNESS_FILE = os.environ.get("FITNESS_FILE", "fitness.txt")
+VIDEO_FILE   = os.environ.get("VIDEO_FILENAME","vid.mp4")
 
 #simulation.py
 class SIMULATION:
@@ -29,8 +32,8 @@ class SIMULATION:
     p.setGravity(0, 0, -9.8, self.physicsClient)
 
     #creation of world and robot objects
-    self.world = WORLD()
-    self.robot = ROBOT()
+    self.world = WORLD(WORLD_FILE)
+    self.robot = ROBOT(BODY_FILE, BRAIN_FILE)
 
   def Run(self):
 
@@ -45,7 +48,7 @@ class SIMULATION:
 
     # Initialize video.
 
-    vid = imageio_ffmpeg.write_frames(video_filename, (cam_width, cam_height), fps=30)
+    vid = imageio_ffmpeg.write_frames(VIDEO_FILE, (cam_width, cam_height), fps=30)
     vid.send(None) # The first frame of the video must be a null frame.
 
     for t in range(c.iterations):
@@ -79,8 +82,10 @@ class SIMULATION:
     self.Get_Fitness()
 
   def Get_Fitness(self):
-    return self.robot.Get_Fitness()
-
+    fitness_value = self.robot.Get_Fitness()  # e.g. final x-coordinate
+    with open(FITNESS_FILE, "w") as f:
+        f.write(str(fitness_value))
+        
 def __del__(self):
     try:
         p.disconnect()
