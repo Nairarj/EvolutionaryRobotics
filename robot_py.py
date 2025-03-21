@@ -8,6 +8,7 @@ Original file is located at
 """
 
 #import statements
+import os
 import pybullet as p
 import pybullet_data
 import pyrosim.pyrosim as pyrosim
@@ -19,23 +20,25 @@ from pyrosim.neuralNetwork import NEURAL_NETWORK  # New import
 #robot.py
 class ROBOT:
 
-  def __init__(self):
+  def __init__(self, body_file="body.urdf", brain_file="brain0.nndf", solutionID="0"):
 
     #Create dictionary for motors
     self.motors = {}
     #Load robot and prepare to simulate it
-    self.robotId = p.loadURDF("body.urdf")
+    self.robotId = p.loadURDF(body_file)
     #Prepare simulation using the robot's URDF ID
     pyrosim.Prepare_To_Simulate(self.robotId)
 
     # Create the neural network instance from brain.nndf
-    self.nn = NEURAL_NETWORK("brain.nndf")  # New line
+    self.nn = NEURAL_NETWORK(brain_file)  
 
     #Prepare to sense
     self.Prepare_To_Sense()
 
     #Prepare the motors
     self.Prepare_To_Act()
+
+    os.system(f"rm {brain_file}")
 
   def Prepare_To_Sense(self):
     #Create sensors dictionary
@@ -86,13 +89,7 @@ class ROBOT:
 
   def Get_Fitness(self):
     stateOfLinkZero = p.getLinkState(self.robotId, 0)
-
-    positionOfLinkZero = stateOfLinkZero[0]
-
-    xCoordinateOfLinkZero = positionOfLinkZero[0]
-
-    with open("fitness.txt", "w") as f:
-      f.write(str(xCoordinateOfLinkZero))
-
-    print("Fitness (x-coordinate of link 0):", xCoordinateOfLinkZero)
-    return xCoordinateOfLinkZero
+    pos = stateOfLinkZero[0]
+    x = pos[0]
+    print("Fitness (x-coordinate):", x)
+    return x

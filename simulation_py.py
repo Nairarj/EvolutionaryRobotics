@@ -1,3 +1,4 @@
+import sys
 import random
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,17 +15,12 @@ from tempfile import TemporaryFile
 from world_py import WORLD
 from robot_py import ROBOT
 
-# 1) Read environment variables for all file names
-WORLD_FILE   = os.environ.get("WORLD_FILE",   "object.sdf")
-BODY_FILE    = os.environ.get("BODY_FILE",    "body.urdf")
-BRAIN_FILE   = os.environ.get("BRAIN_FILE",   "brain.nndf")
-FITNESS_FILE = os.environ.get("FITNESS_FILE", "fitness.txt")
-VIDEO_FILE   = os.environ.get("VIDEO_FILENAME","vid.mp4")
-
 #simulation.py
 class SIMULATION:
 
-  def __init__(self):
+  def __init__(self, directOrGUI="DIRECT", solutionID="0"):
+    self.directOrGUI = directOrGUI
+    self.solutionID = solutionID
 
     # physics parameters.
     self.physicsClient = p.connect(p.DIRECT)
@@ -32,10 +28,12 @@ class SIMULATION:
     p.setGravity(0, 0, -9.8, self.physicsClient)
 
     #creation of world and robot objects
-    self.world = WORLD(WORLD_FILE)
-    self.robot = ROBOT(BODY_FILE, BRAIN_FILE)
+    self.world = WORLD("object.sdf")
+    brainFile = f"brain{solutionID}.nndf"
+    self.robot = ROBOT("body.urdf", brainFile, solutionID)
 
   def Run(self):
+    video_filename = f"vid_{self.solutionID}.mp4"
 
     # camera parameters
     cam_target_pos = [0, 0, 1.5]
@@ -48,7 +46,7 @@ class SIMULATION:
 
     # Initialize video.
 
-    vid = imageio_ffmpeg.write_frames(VIDEO_FILE, (cam_width, cam_height), fps=30)
+    vid = imageio_ffmpeg.write_frames(video_filename, (cam_width, cam_height), fps=30)
     vid.send(None) # The first frame of the video must be a null frame.
 
     for t in range(c.iterations):
@@ -75,16 +73,22 @@ class SIMULATION:
       #Adding call to Think()
       self.robot.Think()
       self.robot.Act(t)
-      #time.sleep(1/300)
+      time.sleep(1/300)
 
     vid.close()
 
     self.Get_Fitness()
 
   def Get_Fitness(self):
-    fitness_value = self.robot.Get_Fitness()  # e.g. final x-coordinate
-    with open(FITNESS_FILE, "w") as f:
-        f.write(str(fitness_value))
+    # Write to tmp{solutionID}.txt, then rename to fitness{solutionID}.txt
+      fitness_value = self.robot.Get_Fitness()
+      tmpFile = f"tmp{self.solutionID}.txt"
+      with open(tmpFile, "w") as f:
+          f.write(str(fitness_value))
+
+      # rename tmp -> fitness
+      fitnessFile = f"fitness{self.solutionID}.txt"
+      os.system(f"mv {tmpFile} {fitnessFile}")
         
 def __del__(self):
     try:
@@ -92,6 +96,14 @@ def __del__(self):
     except Exception:
         pass
 
-if __name__ == "__main__":
-    sim = SIMULATION()
+if __name__=="__main__":
+    # Expect 2 arguments: mode and solutionID
+    if len(sys.argv) > 2:
+        directOrGUI = sys.argv[1]   # e.g. "DIRECT" or "GUI"
+        solutionID = sys.argv[2]    # e.g. "0" or "1"
+    else:
+        directOrGUI = "DIRECT"
+        solutionID = "0"
+
+    sim = SIMULATION(directOrGUI, solutionID)
     sim.Run()

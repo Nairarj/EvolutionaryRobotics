@@ -6,7 +6,7 @@ import pyrosim.pyrosim as pyrosim
 #world.py
 class WORLD:
 
-  def __init__(self):
+  def __init__(self, filename="object.sdf"):
 
     self.plane_id = p.loadURDF("plane.urdf")
-    p.loadSDF("object.sdf")
+    p.loadSDF(filename)
