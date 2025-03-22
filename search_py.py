@@ -8,5 +8,5 @@ phc = PARALLEL_HILL_CLIMBER()
 
 #Calling Evolve method to evaluate the solution
 phc.Evolve()
-phc.Show_Best()
+
 

@@ -83,13 +83,14 @@ class PARALLEL_HILL_CLIMBER:
 
 
     def Select(self):
-        # Each child competes with its parent
-        for i in self.parents:
-            parentFitness = self.parents[i].fitness
-            childFitness  = self.children[i].fitness
-            if childFitness < parentFitness:
-                print(f"Replacing parent {i} with child {i} (better fitness).")
-                self.parents[i] = self.children[i]
+      for i in self.parents:
+        if self.children[i].fitness < self.parents[i].fitness:
+            # child is better, so adopt the parent's old ID
+            oldID = self.parents[i].myID
+            self.children[i].myID = oldID  # keep the parent's ID
+            print(f"Replacing parent {i} (ID={oldID}) with child {i} (ID was {self.children[i].myID}).")
+            self.parents[i] = self.children[i]
+
 
 
     def Print(self, generation):
@@ -109,7 +110,7 @@ class PARALLEL_HILL_CLIMBER:
 
       # Re-run this solution in DIRECT mode, producing a new video file
       # We'll treat it like "GUI" but in Colab it's still just a video
-      self.parents[bestKey].Start_Simulation("DIRECT", "best_vid.mp4")
+      self.parents[bestKey].Start_Simulation("GUI", "best_vid.mp4")
       # We do not call Wait_For_Simulation_To_End() because we already have its fitness
       # If you want to re-read the fitness, you could do so, but it's not required.
       print("Simulating the best solution in DIRECT mode. Video: best_vid.mp4\n")

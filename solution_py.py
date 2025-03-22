@@ -15,15 +15,12 @@ class SOLUTION:
     
 
 
-  def Start_Simulation(self, mode="DIRECT"):
+  def Start_Simulation(self, mode="DIRECT", video_filename="vid.mp4"):
         # Create the world, body, brain
-        self.Create_World()
-        self.Create_Body()
         self.Create_Brain()
-
         # Build the command string:
         # e.g. python3 simulate_py.py DIRECT 0 &
-        cmd = f"python3 simulate_py.py {mode} {self.myID} &"
+        cmd = f"python3 simulate_py.py {mode} {self.myID} {video_filename} &"
         print("Starting simulation:", cmd)
         os.system(cmd)
 

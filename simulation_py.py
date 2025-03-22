@@ -18,12 +18,19 @@ from robot_py import ROBOT
 #simulation.py
 class SIMULATION:
 
-  def __init__(self, directOrGUI="DIRECT", solutionID="0"):
+  def __init__(self, directOrGUI="DIRECT", solutionID="0", video_filename="vid.mp4"):
     self.directOrGUI = directOrGUI
     self.solutionID = solutionID
+    self.video_filename= video_filename
 
-    # physics parameters.
-    self.physicsClient = p.connect(p.DIRECT)
+    if directOrGUI == "GUI":
+    # In real local PyBullet, we might do p.connect(p.GUI)
+    # But in Colab, just do p.connect(p.DIRECT).
+      self.physicsClient = p.connect(p.DIRECT)
+    else:
+      self.physicsClient = p.connect(p.DIRECT)
+    
+    
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
     p.setGravity(0, 0, -9.8, self.physicsClient)
 
@@ -33,8 +40,6 @@ class SIMULATION:
     self.robot = ROBOT("body.urdf", brainFile, solutionID)
 
   def Run(self):
-    video_filename = f"vid_{self.solutionID}.mp4"
-
     # camera parameters
     cam_target_pos = [0, 0, 1.5]
     cam_distance = 12.5
@@ -46,19 +51,10 @@ class SIMULATION:
 
     # Initialize video.
 
-    vid = imageio_ffmpeg.write_frames(video_filename, (cam_width, cam_height), fps=30)
+    vid = imageio_ffmpeg.write_frames(self.video_filename, (cam_width, cam_height), fps=30)
     vid.send(None) # The first frame of the video must be a null frame.
 
     for t in range(c.iterations):
-      #current_target = targetAngles[t]
-
-      #backLegMotorValues[t] = current_target
-      #frontLegMotorValues[t] = current_target
-
-      #pyrosim.Set_Motor_For_Joint(bodyIndex = self.robotId, jointName = b"Torso_BackLeg", controlMode = p.POSITION_CONTROL, targetPosition = backLegMotorAngles[t], maxForce = 100)
-      #pyrosim.Set_Motor_For_Joint(bodyIndex = self.robotId, jointName = b"Torso_FrontLeg", controlMode = p.POSITION_CONTROL, targetPosition= frontLegMotorAngles[t], maxForce = 100)
-
-
       # Create one image and add it to the video.
       cam_view_matrix = p.computeViewMatrixFromYawPitchRoll(cam_target_pos, cam_distance, cam_yaw, cam_pitch, cam_roll, cam_up_axis_idx)
       cam_projection_matrix = p.computeProjectionMatrixFOV(cam_fov, cam_width*1./cam_height, cam_near_plane, cam_far_plane)
@@ -73,7 +69,7 @@ class SIMULATION:
       #Adding call to Think()
       self.robot.Think()
       self.robot.Act(t)
-      time.sleep(1/300)
+      #time.sleep(1/300)
 
     vid.close()
 
