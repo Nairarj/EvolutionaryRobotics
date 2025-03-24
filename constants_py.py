@@ -11,9 +11,9 @@ frontAmplitude = np.pi / 4
 frontFrequency = 5
 frontPhaseOffset = np.pi/2
 
-motorJoinRange = 1.0
-numberOfGenerations = 6
+motorJoinRange = 0.2
+numberOfGenerations = 3
 populationSize = 3
 
-numSensorNeurons = 9
+numSensorNeurons = 4
 numMotorNeurons = 8
