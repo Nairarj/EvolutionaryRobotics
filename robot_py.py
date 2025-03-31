@@ -82,8 +82,9 @@ class ROBOT:
   
 
   def Get_Fitness(self):
-    stateOfLinkZero = p.getLinkState(self.robotId, 0)
-    pos = stateOfLinkZero[0]
-    x = pos[0]
-    print("Fitness (x-coordinate):", x)
-    return x
+    basePositionAndOrientation = p.getBasePositionAndOrientation(self.robotId)
+    basePosition = basePositionAndOrientation[0]
+    xPosition = basePosition[0]
+
+    print("Fitness (x-coordinate):", xPosition)
+    return xPosition
