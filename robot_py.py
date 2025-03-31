@@ -20,6 +20,9 @@ class ROBOT:
     self.motors = {}
     #Load robot and prepare to simulate it
     self.robotId = p.loadURDF(body_file)
+
+    #Shift the entire robot upward by 2 units so that it sits on top of runway.
+    p.resetBasePositionAndOrientation(self.robotId, [0, 0, 2], [0, 0, 0, 1])
     #Prepare simulation using the robot's URDF ID
     pyrosim.Prepare_To_Simulate(self.robotId)
 
