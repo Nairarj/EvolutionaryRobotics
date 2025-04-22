@@ -47,7 +47,7 @@ class SOLUTION:
 
   def Create_World(self):
     pyrosim.Start_SDF("object.sdf")
-    pyrosim.Send_Cube(name="Runway", pos=[0,0,0.5], size=[10, 2, 1])
+    pyrosim.Send_Cube(name="Runway", pos=[0,0,0.5], size=[10, 3, 1])
     pyrosim.End()
 
   def Create_Body(self):

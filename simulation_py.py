@@ -80,29 +80,36 @@ class SIMULATION:
     self.Get_Fitness(timeOnRunway)
 
   def Get_Fitness(self, timeOnRunway):
-      #Get Robots base position
-      basePos = p.getBasePositionAndOrientation(self.robot.robotId)[0]
-      xPos, yPos = basePos[0], basePos[1]
+    # 1) Read base position
+    xPos, yPos = p.getBasePositionAndOrientation(self.robot.robotId)[0][:2]
+    forward  = max(0.0, xPos)
+    avgSpeed = forward / c.iterations
 
-      #Compute fitness according to the selected mode
-      if c.FITNESS_MODE =="B":
-        #Fitness B = forward distance * time spent on runway
-        fitness_value = xPos * timeOnRunway
-        print(f"Fitness B (x * timeOnRunway): {fitness_value}")
+    if c.FITNESS_MODE == "B":
+        # If the robot ever fell off (didn't stay all timesteps), zero reward
+      if timeOnRunway < c.iterations:
+          rawFitness = 0.0
+          print(f"Fell off at t={timeOnRunway}/{c.iterations}; rawFitness=0")
       else:
-        #Fitness A = forward distance * lateral-deviation penalty
+          # Perfect run: reward pure average speed
+          rawFitness = avgSpeed
+          print(f"Raw Fitness B: perfect run, avgSpeed = {avgSpeed:.4f}")
+    else:
         if abs(yPos) >= c.RUNWAY_HALF_WIDTH:
-          penalty = 0.0
+            lateralPenalty = 0.0
         else:
-          penalty = 1.0 - (abs(yPos) / c.RUNWAY_HALF_WIDTH) ** 2
-        fitness_value = xPos * penalty
-        print(f"Fitness A (x * penalty): {fitness_value} [x={xPos}, y={yPos}, penalty={penalty}]")
+            lateralPenalty = 1 - (abs(yPos)/c.RUNWAY_HALF_WIDTH)**2
+        rawFitness = avgSpeed * lateralPenalty
+        print(f"Fitness A: avgSpeed {avgSpeed:.4f} * lateralPenalty {lateralPenalty:.2f} = {rawFitness:.4f}")
 
-      # Write to tmp{solutionID}.txt, then rename to fitness{solutionID}.txt
-      tmpFile = f"tmp{self.solutionID}.txt"
-      with open(tmpFile, "w") as f:
-          f.write(str(fitness_value))
-      os.system(f"mv {tmpFile} fitness{self.solutionID}.txt")
+    # 2) Negate for minimizer
+    fitness_value = -rawFitness
+
+    # 3) Write out
+    tmpFile = f"tmp{self.solutionID}.txt"
+    with open(tmpFile, "w") as f:
+        f.write(str(fitness_value))
+    os.system(f"mv {tmpFile} fitness{self.solutionID}.txt")
         
 def __del__(self):
     try:

@@ -1,7 +1,7 @@
 import numpy as np
 
 #constants.py
-iterations = 200
+iterations = 450
 backAmplitude = np.pi / 8
 backFrequency = 5
 backPhaseOffset = 0
