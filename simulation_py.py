@@ -54,6 +54,7 @@ class SIMULATION:
     vid = imageio_ffmpeg.write_frames(self.video_filename, (cam_width, cam_height), fps=30)
     vid.send(None) # The first frame of the video must be a null frame.
 
+    timeOnRunway = 0
     for t in range(c.iterations):
       # Create one image and add it to the video.
       cam_view_matrix = p.computeViewMatrixFromYawPitchRoll(cam_target_pos, cam_distance, cam_yaw, cam_pitch, cam_roll, cam_up_axis_idx)
@@ -69,22 +70,39 @@ class SIMULATION:
       #Adding call to Think()
       self.robot.Think()
       self.robot.Act(t)
+      baseY = p.getBasePositionAndOrientation(self.robot.robotId)[0][1]
+      if abs(baseY) <= c.RUNWAY_HALF_WIDTH:
+        timeOnRunway += 1
       #time.sleep(1/300)
 
     vid.close()
 
-    self.Get_Fitness()
+    self.Get_Fitness(timeOnRunway)
 
-  def Get_Fitness(self):
-    # Write to tmp{solutionID}.txt, then rename to fitness{solutionID}.txt
-      fitness_value = self.robot.Get_Fitness()
+  def Get_Fitness(self, timeOnRunway):
+      #Get Robots base position
+      basePos = p.getBasePositionAndOrientation(self.robot.robotId)[0]
+      xPos, yPos = basePos[0], basePos[1]
+
+      #Compute fitness according to the selected mode
+      if c.FITNESS_MODE =="B":
+        #Fitness B = forward distance * time spent on runway
+        fitness_value = xPos * timeOnRunway
+        print(f"Fitness B (x * timeOnRunway): {fitness_value}")
+      else:
+        #Fitness A = forward distance * lateral-deviation penalty
+        if abs(yPos) >= c.RUNWAY_HALF_WIDTH:
+          penalty = 0.0
+        else:
+          penalty = 1.0 - (abs(yPos) / c.RUNWAY_HALF_WIDTH) ** 2
+        fitness_value = xPos * penalty
+        print(f"Fitness A (x * penalty): {fitness_value} [x={xPos}, y={yPos}, penalty={penalty}]")
+
+      # Write to tmp{solutionID}.txt, then rename to fitness{solutionID}.txt
       tmpFile = f"tmp{self.solutionID}.txt"
       with open(tmpFile, "w") as f:
           f.write(str(fitness_value))
-
-      # rename tmp -> fitness
-      fitnessFile = f"fitness{self.solutionID}.txt"
-      os.system(f"mv {tmpFile} {fitnessFile}")
+      os.system(f"mv {tmpFile} fitness{self.solutionID}.txt")
         
 def __del__(self):
     try:

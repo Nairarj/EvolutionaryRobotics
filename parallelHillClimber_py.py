@@ -1,4 +1,5 @@
 import copy
+import numpy as np 
 from solution_py import SOLUTION
 import constants_py as c
 import os
@@ -18,8 +19,10 @@ class PARALLEL_HILL_CLIMBER:
             self.parents[i] = SOLUTION(self.nextAvailableID)
             self.nextAvailableID += 1
 
+        #M4 - allocate one matrix to record fitness per [individual, generation]
+        self.fitnessMatrix = np.zeros((c.populationSize, c.numberOfGenerations))
         # The instructions said to print the dictionary to verify:
-        print(self.parents)
+        #print(self.parents)
         # Then remove the print statement, so we leave it commented out.
 
     def Evolve(self):
@@ -35,16 +38,25 @@ class PARALLEL_HILL_CLIMBER:
  
         self.Show_Best()
 
+        #M4 - save the fitness matrix for later plotting
+        filename = "fitnessA.npy" if c.FITNESS_MODE == "A" else "fitnessB.npy"
+        np.save(filename, self.fitnessMatrix)
+        print(f"\n saved fitness matrix to {filename}\n")
+
     def Evolve_For_One_Generation(self, generation):
         self.Spawn()
 
         self.Mutate()
 
         self.Evaluate(self.children)
+        #M4 - record each child's fitness in the matrix
+        for i, child in self.children.items():
+          self.fitnessMatrix[i, generation] = child.fitness
 
         self.Print(generation)
 
         self.Select()
+
 
     def Spawn(self):
         self.children = {}
@@ -109,8 +121,13 @@ class PARALLEL_HILL_CLIMBER:
       print(f"\nBest solution is key {bestKey}, with fitness {bestFitness}")
 
       # Re-run this solution in DIRECT mode, producing a new video file
+      
+
+      #M4 - enable video only for this one run
+      import constants_py as c 
+      c.RENDER_VIDEO = True
       # We'll treat it like "GUI" but in Colab it's still just a video
-      self.parents[bestKey].Start_Simulation("GUI", "best_vid.mp4")
+      self.parents[bestKey].Start_Simulation("DIRECT", "best_vid.mp4")
       # We do not call Wait_For_Simulation_To_End() because we already have its fitness
       # If you want to re-read the fitness, you could do so, but it's not required.
       print("Simulating the best solution in DIRECT mode. Video: best_vid.mp4\n")
